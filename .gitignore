@@ -1,0 +1,9 @@
+venv/
+.env
+__pycache__/
+*.pyc
+.vscode/
+execution_screenshots/
+videos/
+backend/temp/
+node_modules/

@@ -297,118 +297,118 @@ class TaskDecomposer:
     def _create_prompt(self, parsed_input: ParsedInput, action_types: str) -> str:
         """Kreiraj detaljan prompt za LLM."""
         
-        return f"""Ti si ekspert za automatizaciju desktop aplikacija. Kreiraj DETALJAN plan za Computer Use AI agenta. 
-                KONTEKST:
-                - Cilj: {parsed_input.intent}
-                - Aplikacija: {parsed_input.application}
-                - Programski jezik: {parsed_input.programming_language or "Nije specificirano"}
-                - Akcije: {json.dumps(parsed_input.specific_actions, ensure_ascii=False)}
+        return f"""You are an expert in desktop application automation. Create a DETAILED plan for a Computer Use AI agent.
+                    CONTEXT:
+                    - Goal: {parsed_input.intent}
+                    - Application: {parsed_input.application}
+                    - Programming language: {parsed_input.programming_language or "Not specified"}
+                    - Actions: {json.dumps(parsed_input.specific_actions, ensure_ascii=False)}
 
-                DOSTUPNE AKCIJE:
-                {action_types}
+                    AVAILABLE ACTIONS:
+                    {action_types}
 
-                ═══════════════════════════════════════════════════════════════════════════
-                KRITICNA PRAVILA ZA KREIRANJE KORAKA:
-                ═══════════════════════════════════════════════════════════════════════════
+                    ═══════════════════════════════════════════════════════════════════════════
+                    CRITICAL RULES FOR CREATING STEPS:
+                    ═══════════════════════════════════════════════════════════════════════════
 
-                1. TARGET MORA BITI TAČAN TEKST koji se VIDI na ekranu (na ENGLESKOM za IDE):
-                DOBRO: "File", "New", "Project...", "Console App", "Next", "Create"
-                LOŠE: "File menu", "New project button", "klikni na File"
+                    1. TARGET MUST BE THE EXACT TEXT that is VISIBLE on the screen (IN ENGLISH for IDEs):
+                    GOOD: "File", "New", "Project...", "Console App", "Next", "Create"
+                    BAD: "File menu", "New project button", "click File"
 
-                2. Za MENIJE - svaki nivo je POSEBAN KORAK:
-                - Korak 1: click na "File"
-                - Korak 2: click na "New" 
-                - Korak 3: click na "Project..."
+                    2. For MENUS – each level is a SEPARATE STEP:
+                    - Step 1: click on "File"
+                    - Step 2: click on "New"
+                    - Step 3: click on "Project..."
 
-                3. Za ČEKANJE - value je BROJ (ne tekst):
-                DOBRO: "value": "3"
-                LOŠE: "value": "3 sekunde"
+                    3. For WAIT – value must be a NUMBER (not text):
+                    GOOD: "value": "3"
+                    BAD: "value": "3 seconds"
 
-                4. Za TYPE_TEXT: 
-                - target = ime polja (npr. "Project name") ili "editor" za kod
-                - value = tekst za unos
+                    4. For TYPE_TEXT:
+                    - target = field name (e.g. "Project name") or "editor" for code
+                    - value = text to input
 
-                5. OBAVEZNI WAIT koraci:
-                - Nakon open_application: wait 4 sekunde
-                - Nakon kreiranja projekta: wait 5 sekunde
-                - Nakon klika na meni: wait 1 sekunda
+                    5. MANDATORY WAIT STEPS:
+                    - After open_application: wait 5 seconds
+                    - After project creation: wait 6 seconds
+                    - After clicking a menu: wait 1 second
 
-                6. Za Visual Studio 2022/2026:
-                - Start: otvara se Start Window
-                - "Create a new project" dugme na Start Window
-                - Search box za template: ukucaj "Console"
-                - Izaberi "Console App" (sa C# ikonom)
-                - "Next" dugme
-                - "Project name" input polje
-                - "Create" dugme
-                - Čekaj da se projekat učita
-                - Kod se piše u EDITORU (ne treba klikati - editor je već fokusiran)
-                - Za RUN: klikni na zeleno "Start" dugme ili pritisni F5
+                    6. For Visual Studio 2022/2026:
+                    - Start: Start Window opens
+                    - "Create a new project" button on Start Window
+                    - Template search box: type "Console"
+                    - Select "Console App" (with C# icon)
+                    - "Next" button
+                    - "Project name" input field
+                    - "Create" button
+                    - Wait for project to load
+                    - Code is written in the EDITOR (no need to click – editor is already focused)
+                    - To RUN: click the green "Start" button or press F5
 
-                7. Za Eclipse:
-                - File > New > Java Project
-                - Unesi ime projekta
-                - Finish
-                - Desni klik na "src" folder
-                - New > Class
-                - Unesi ime klase, čekiraj "public static void main"
-                - Finish
-                - Piši kod
-                - Run > Run ili Ctrl+F11
+                    7. For Eclipse:
+                    - File > New > Java Project
+                    - Enter project name
+                    - Finish
+                    - Right click on "src" folder
+                    - New > Class
+                    - Enter class name, check "public static void main"
+                    - Finish
+                    - Write code
+                    - Run > Run or Ctrl+F11
 
-                8. Za Browser (Chrome, Firefox, Opera, Edge):
-                - open_application za pokretanje browsera
-                - wait 4 sekunde za učitavanje
-                - type_text u "Address bar" za URL
-                - key_press "enter" za navigaciju
-                - wait za učitavanje stranice
-                - Za YouTube: type_text u "Search" polje, key_press "enter", click na rezultat
+                    8. For Browsers (Chrome, Firefox, Opera, Edge):
+                    - open_application to launch the browser
+                    - wait 4 seconds for loading
+                    - type_text in "Address bar" for the URL
+                    - key_press "enter" to navigate
+                    - wait for page load
+                    - For YouTube: type_text in "Search" field, key_press "enter", click on a result
 
-                ═══════════════════════════════════════════════════════════════════════════
-                PRIMJER ZA VISUAL STUDIO C# KONZOLNU APLIKACIJU:
-                ═══════════════════════════════════════════════════════════════════════════
+                    ═══════════════════════════════════════════════════════════════════════════
+                    EXAMPLE FOR VISUAL STUDIO C# CONSOLE APPLICATION:
+                    ═══════════════════════════════════════════════════════════════════════════
 
-                {{
-                "goal": "Kreiranje C# konzolne aplikacije koja ispisuje Hello World",
-                "prerequisites": ["Visual Studio 2022 je instaliran"],
-                "steps": [
-                    {{"id": 1, "action": "open_application", "target": "Visual Studio", "value": null, "description": "Pokreni Visual Studio", "expected_result": "Visual Studio Start Window je otvoren"}},
-                    {{"id": 2, "action": "wait", "target": "screen", "value": "10", "description": "Cekaj ucitavanje", "expected_result": "Start Window je vidljiv"}},
-                    {{"id": 3, "action": "click", "target": "Create a new project", "value": null, "description": "Klikni Create a new project", "expected_result": "Template selection dialog je otvoren"}},
-                    {{"id": 4, "action": "wait", "target": "screen", "value": "2", "description": "Cekaj dialog", "expected_result": "Template lista je vidljiva"}},
-                    {{"id": 5, "action": "type_text", "target": "Search for templates", "value": "Console", "description": "Pretrazi Console template", "expected_result": "Console App template je vidljiv"}},
-                    {{"id": 6, "action": "wait", "target": "screen", "value": "2", "description": "Cekaj rezultate pretrage", "expected_result": "Console App je prikazan"}},
-                    {{"id": 7, "action": "click", "target": "Console App", "value": null, "description": "Izaberi Console App template", "expected_result": "Console App je selektovan"}},
-                    {{"id": 8, "action": "click", "target": "Next", "value": null, "description": "Klikni Next", "expected_result": "Configure project dialog je otvoren"}},
-                    {{"id": 9, "action": "wait", "target": "screen", "value": "1", "description": "Cekaj dialog", "expected_result": "Project name polje je vidljivo"}},
-                    {{"id": 10, "action": "click", "target": "Project name", "value": null, "description": "Klikni na Project name polje", "expected_result": "Polje je aktivno"}},
-                    {{"id": 11, "action": "key_combination", "target": "ctrl+a", "value": null, "description": "Selektuj sav tekst", "expected_result": "Tekst je selektovan"}},
-                    {{"id": 12, "action": "type_text", "target": "editor", "value": "HelloWorld", "description": "Unesi ime projekta", "expected_result": "HelloWorld je uneseno"}},
-                    {{"id": 13, "action": "click", "target": "Next", "value": null, "description": "Klikni Next", "expected_result": "Framework selection je otvoren"}},
-                    {{"id": 14, "action": "wait", "target": "screen", "value": "1", "description": "Cekaj", "expected_result": "Framework opcije su vidljive"}},
-                    {{"id": 15, "action": "click", "target": "Create", "value": null, "description": "Klikni Create", "expected_result": "Projekat se kreira"}},
-                    {{"id": 16, "action": "wait", "target": "screen", "value": "8", "description": "Cekaj kreiranje projekta", "expected_result": "Editor sa Program.cs je otvoren"}},
-                    {{"id": 17, "action": "click", "target": "Program.cs", "value": null, "description": "Klikni na Program.cs tab", "expected_result": "Program.cs je aktivan"}},
-                    {{"id": 18, "action": "key_combination", "target": "ctrl+a", "value": null, "description": "Selektuj sav kod", "expected_result": "Kod je selektovan"}},
-                    {{"id": 19, "action": "type_text", "target": "editor", "value": "Console.WriteLine(\\"Hello World!\\");", "description": "Unesi Hello World kod", "expected_result": "Kod je unesen"}},
-                    {{"id": 20, "action": "key_combination", "target": "ctrl+s", "value": null, "description": "Sacuvaj fajl", "expected_result": "Fajl je sacuvan"}},
-                    {{"id": 21, "action": "wait", "target": "screen", "value": "1", "description": "Cekaj", "expected_result": "Spremno za pokretanje"}},
-                    {{"id": 22, "action": "key_press", "target": "f5", "value": null, "description": "Pokreni aplikaciju (F5)", "expected_result": "Aplikacija se pokrece"}},
-                    {{"id": 23, "action": "wait", "target": "screen", "value": "5", "description": "Cekaj izvrsavanje", "expected_result": "Hello World je ispisan u konzoli"}}
-                ],
-                "success_criteria": "Hello World! je prikazan u konzoli"
-                }}
+                    {{
+                    "goal": "Create a C# console application that prints Hello World",
+                    "prerequisites": ["Visual Studio 2022 is installed"],
+                    "steps": [
+                        {{"id": 1, "action":  "open_application", "target": "Visual Studio", "value": null, "description": "Start Visual Studio", "expected_result": "Visual Studio Start Window is opened"}},
+#                         {{"id":  2, "action": "wait", "target": "screen", "value": "10", "description": "Wait for loading", "expected_result":  "Start Window is visible"}},
+#                         {{"id": 3, "action": "click", "target": "Create a new project", "value": null, "description": "Click Create a new project", "expected_result": "Template selection dialog is opened"}},
+#                         {{"id":  4, "action": "wait", "target": "screen", "value": "2", "description": "Wait for dialog", "expected_result":  "Template list is visible"}},
+#                         {{"id": 5, "action": "type_text", "target":  "Search for templates", "value": "Console", "description":  "Search Console template", "expected_result": "Console App template is visible"}},
+#                         {{"id": 6, "action": "wait", "target": "screen", "value":  "2", "description": "Wait for search results", "expected_result": "Console App is displayed"}},
+#                         {{"id": 7, "action":  "click", "target": "Console App", "value": null, "description": "Select Console App template", "expected_result": "Console App is selected"}},
+#                         {{"id": 8, "action": "click", "target": "Next", "value": null, "description": "Click Next", "expected_result": "Configure project dialog is opened"}},
+#                         {{"id": 9, "action": "wait", "target": "screen", "value":  "1", "description": "Wait for dialog", "expected_result": "Project name field is visible"}},
+#                         {{"id": 10, "action": "click", "target": "Project name", "value":  null, "description":  "Click on Project name field", "expected_result": "Field is active"}},
+#                         {{"id": 11, "action":  "key_combination", "target": "ctrl+a", "value": null, "description": "Select all text", "expected_result": "Text is selected"}},
+#                         {{"id": 12, "action": "type_text", "target": "editor", "value": "HelloWorld", "description":  "Input project name", "expected_result": "HelloWorld is entered"}},
+#                         {{"id": 13, "action": "click", "target": "Next", "value":  null, "description":  "Click Next", "expected_result": "Framework selection is opened"}},
+#                         {{"id": 14, "action": "wait", "target": "screen", "value": "1", "description":  "Wait", "expected_result":  "Framework options are visible"}},
+#                         {{"id": 15, "action": "click", "target": "Create", "value": null, "description": "Click Create", "expected_result": "Project is created"}},
+#                         {{"id": 16, "action":  "wait", "target": "screen", "value": "8", "description": "Wait for project creation", "expected_result": "Editor with Program.cs is opened"}},
+#                         {{"id":  17, "action": "click", "target": "Program.cs", "value": null, "description": "Click on Program.cs tab", "expected_result":  "Program.cs is active"}},
+#                         {{"id": 18, "action":  "key_combination", "target": "ctrl+a", "value": null, "description": "Select all code", "expected_result": "Code is selected"}},
+#                         {{"id": 19, "action": "type_text", "target":  "editor", "value": "Console. WriteLine(\\"Hello World! \\");", "description": "Input Hello World code", "expected_result": "Code is entered"}},
+#                         {{"id": 20, "action": "key_combination", "target": "ctrl+s", "value": null, "description": "Save file", "expected_result": "File is saved"}},
+#                         {{"id": 21, "action": "wait", "target": "screen", "value":  "1", "description": "Wait", "expected_result":  "Ready to run"}},
+#                         {{"id":  22, "action": "key_press", "target": "f5", "value":  null, "description":  "Run application (F5)", "expected_result": "Application is running"}},
+#                         {{"id": 23, "action": "wait", "target":  "screen", "value": "5", "description": "Wait for execution", "expected_result": "Hello World is displayed in the console"}}
+                    ],
+                    "success_criteria": "Hello World! is displayed in the console"
+                    }}
 
-                ═══════════════════════════════════════════════════════════════════════════
+                    ═══════════════════════════════════════════════════════════════════════════
 
-                Sada kreiraj plan za dati zadatak. Odgovori SAMO sa JSON objektom.
+                    Now create a plan for the given task. Respond ONLY with a JSON object.
 
-                VAŽNO: value za wait MORA biti broj kao string (npr. "5"), NE "5 sekundi"!
-                VAŽNO: target MORA biti TAČAN tekst koji se vidi na UI-u!
-                VAŽNO: Provjeri DA LI JE SVE TAČNO prije slanja odgovora!
-                VAŽNO: Vodi računa da se radi o najnovijim verzijama aplikacija (npr. Visual Studio 2026).
-                VAŽNO: Detaljno idi korak po korak, NIKADA NE PRESKAČI KORAKE!
-                VAŽNO: Dodaj wait nakon SVAKE akcije koja zahtijeva učitavanje!"""
+                    IMPORTANT: wait value MUST be a number as a string (e.g. "5"), NOT "5 seconds"!
+                    IMPORTANT: target MUST be the EXACT text visible in the UI!
+                    IMPORTANT: Verify EVERYTHING before sending the response!
+                    IMPORTANT: Assume the latest versions of applications (e.g. Visual Studio 2026).
+                    IMPORTANT: Go step by step in detail, NEVER SKIP STEPS!
+                    IMPORTANT: Add wait after EVERY action that requires loading!"""
 
     def _parse_response(self, response_text: str) -> dict:
         # Ocisti markdown

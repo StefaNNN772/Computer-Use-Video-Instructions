@@ -19,27 +19,27 @@ class InputProcessor:
         print(f"Groq initialized (model: {self.model})")
     
     def parse(self, user_instruction: str) -> ParsedInput:
-        """Parsira korisnički tekstualni opis."""
+        """Parsira korisnicki tekstualni opis"""
         
-        prompt = f"""Analiziraj sledece korisnicko uputstvo za kreiranje video tutorijala o programiranju.
+        prompt = f"""Analyze the following user instruction for creating a programming video tutorial.
 
-                        KORISNIcKO UPUTSTVO: 
+                        USER INSTRUCTION:
                         "{user_instruction}"
 
-                        Tvoj zadatak je da izvuces kljucne informacije iz ovog uputstva. 
+                        Your task is to extract key information from this instruction.
 
-                        Odgovori ISKLJUCIVO u JSON formatu sa sledecom strukturom:
+                        Respond EXCLUSIVELY in JSON format with the following structure:
                         {{
-                            "intent": "Kratak opis sta korisnik zeli postici",
-                            "application":  "Naziv aplikacije koja se koristi (npr. Eclipse, VS Code, IntelliJ, Terminal)",
-                            "programming_language": "Programski jezik ako je naveden, inace null",
+                            "intent": "A brief description of what the user wants to achieve",
+                            "application": "Name of the application being used (e.g. Eclipse, VS Code, IntelliJ, Terminal)",
+                            "programming_language": "Programming language if mentioned, otherwise null",
                             "specific_actions": [
-                                "Lista konkretnih akcija koje treba izvrsiti",
-                                "Svaka akcija kao poseban string"
+                                "List of specific actions that need to be performed",
+                                "Each action as a separate string"
                             ]
                         }}
 
-                        VAZNO: Odgovori SAMO sa JSON objektom, bez dodatnog teksta, bez markdown formatiranja."""
+                        IMPORTANT: Respond ONLY with the JSON object, without additional text, without markdown formatting."""
 
         response = self. client.chat.completions.create(
             model=self. model,

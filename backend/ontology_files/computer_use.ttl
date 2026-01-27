@@ -23,7 +23,7 @@
     rdfs:label "Task"@en ;
     rdfs:comment "Kompletan zadatak koji se sastoji od vise koraka"@sr .
 
-# === STEP (Atomični proces) ===
+# === STEP (Atomicni proces) ===
 :Step rdf:type owl:Class ;
     rdfs:subClassOf process:AtomicProcess ;
     rdfs:label "Step"@en ;

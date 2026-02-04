@@ -103,7 +103,7 @@ class TaskDecomposer:
                     - value = text to input
 
                     5. MANDATORY WAIT STEPS:
-                    - After open_application: wait 5 seconds
+                    - After open_application: wait 8 seconds
                     - After project creation: wait 6 seconds
                     - After clicking a menu: wait 1 second
 
@@ -146,24 +146,24 @@ class TaskDecomposer:
                     "goal": "Create a C# console application that prints Hello World",
                     "prerequisites": ["Visual Studio 2022 is installed"],
                     "steps": [
-                        {{"id": 1, "action":  "open_application", "target": "Visual Studio", "value": null, "description": "Start Visual Studio", "expected_result": "Visual Studio Start Window is opened"}},
+                        {{"id": 1, "action": "open_application", "target": "Visual Studio", "value": null, "description": "Start Visual Studio", "expected_result": "Visual Studio Start Window is opened"}},
                         {{"id": 2, "action": "wait", "target": "screen", "value": "10", "description": "Wait for loading", "expected_result":  "Start Window is visible"}},
                         {{"id": 3, "action": "click", "target": "Create a new project", "value": null, "description": "Click Create a new project", "expected_result": "Template selection dialog is opened"}},
                         {{"id": 4, "action": "wait", "target": "screen", "value": "2", "description": "Wait for dialog", "expected_result":  "Template list is visible"}},
                         {{"id": 5, "action": "type_text", "target":  "Search for templates", "value": "Console", "description":  "Search Console template", "expected_result": "Console App template is visible"}},
                         {{"id": 6, "action": "wait", "target": "screen", "value":  "2", "description": "Wait for search results", "expected_result": "Console App is displayed"}},
-                        {{"id": 7, "action":  "click", "target": "Console App", "value": null, "description": "Select Console App template", "expected_result": "Console App is selected"}},
+                        {{"id": 7, "action": "click", "target": "Console App", "value": null, "description": "Select Console App template", "expected_result": "Console App is selected"}},
                         {{"id": 8, "action": "click", "target": "Next", "value": null, "description": "Click Next", "expected_result": "Configure project dialog is opened"}},
                         {{"id": 9, "action": "wait", "target": "screen", "value":  "1", "description": "Wait for dialog", "expected_result": "Project name field is visible"}},
                         {{"id": 10, "action": "click", "target": "Project name", "value":  null, "description":  "Click on Project name field", "expected_result": "Field is active"}},
-                        {{"id": 11, "action":  "key_combination", "target": "ctrl+a", "value": null, "description": "Select all text", "expected_result": "Text is selected"}},
+                        {{"id": 11, "action": "key_combination", "target": "ctrl+a", "value": null, "description": "Select all text", "expected_result": "Text is selected"}},
                         {{"id": 12, "action": "type_text", "target": "editor", "value": "HelloWorld", "description":  "Input project name", "expected_result": "HelloWorld is entered"}},
                         {{"id": 13, "action": "click", "target": "Next", "value":  null, "description":  "Click Next", "expected_result": "Framework selection is opened"}},
                         {{"id": 14, "action": "wait", "target": "screen", "value": "1", "description":  "Wait", "expected_result":  "Framework options are visible"}},
                         {{"id": 15, "action": "click", "target": "Create", "value": null, "description": "Click Create", "expected_result": "Project is created"}},
-                        {{"id": 16, "action":  "wait", "target": "screen", "value": "8", "description": "Wait for project creation", "expected_result": "Editor with Program.cs is opened"}},
+                        {{"id": 16, "action": "wait", "target": "screen", "value": "8", "description": "Wait for project creation", "expected_result": "Editor with Program.cs is opened"}},
                         {{"id": 17, "action": "click", "target": "Program.cs", "value": null, "description": "Click on Program.cs tab", "expected_result":  "Program.cs is active"}},
-                        {{"id": 18, "action":  "key_combination", "target": "ctrl+a", "value": null, "description": "Select all code", "expected_result": "Code is selected"}},
+                        {{"id": 18, "action": "key_combination", "target": "ctrl+a", "value": null, "description": "Select all code", "expected_result": "Code is selected"}},
                         {{"id": 19, "action": "type_text", "target":  "editor", "value": "Console. WriteLine(\\"Hello World! \\");", "description": "Input Hello World code", "expected_result": "Code is entered"}},
                         {{"id": 20, "action": "key_combination", "target": "ctrl+s", "value": null, "description": "Save file", "expected_result": "File is saved"}},
                         {{"id": 21, "action": "wait", "target": "screen", "value":  "1", "description": "Wait", "expected_result":  "Ready to run"}},

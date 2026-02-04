@@ -169,11 +169,11 @@ class ScreenRecorder:
         print(f"[ScreenRecorder] Output: {self.current_video_path}")
         
         try:
-            startupinfo = subprocess. STARTUPINFO()
+            startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
             
-            self.process = subprocess. Popen(
+            self.process = subprocess.Popen(
                 ffmpeg_cmd,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,

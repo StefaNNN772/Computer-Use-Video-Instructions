@@ -134,8 +134,6 @@ class OntologyExecutor:
         print(f"Steps: {len(steps)}")
         print("=" * 60)
         
-        time.sleep(3)  # Initial delay
-        
         try:
             for step in steps:
                 step_result = self._execute_step(step, graph)

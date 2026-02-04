@@ -210,19 +210,19 @@ class ScreenRecorder:
         try:
             if self.process.stdin:
                 try:
-                    self.process.stdin. write(b'q')
-                    self.process.stdin. flush()
+                    self.process.stdin.write(b'q')
+                    self.process.stdin.flush()
                     print("[ScreenRecorder] Sent 'q' signal")
                 except: 
                     pass
             
             try:
-                self. process.wait(timeout=15)
+                self.process.wait(timeout=15)
                 print("[ScreenRecorder] FFmpeg finished normally")
             except subprocess.TimeoutExpired:
                 print("[ScreenRecorder] Timeout, sending CTRL+BREAK...")
                 try:
-                    self.process. send_signal(signal.CTRL_BREAK_EVENT)
+                    self.process.send_signal(signal.CTRL_BREAK_EVENT)
                     self.process.wait(timeout=5)
                 except:
                     print("[ScreenRecorder] Terminating process...")

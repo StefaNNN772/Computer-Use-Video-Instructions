@@ -227,7 +227,7 @@ class ScreenRecorder:
                 except:
                     print("[ScreenRecorder] Terminating process...")
                     self.process.terminate()
-                    self. process.wait(timeout=5)
+                    self.process.wait(timeout=5)
                     
         except Exception as e: 
             print(f"[ScreenRecorder] Error:  {e}")
@@ -274,22 +274,3 @@ class ScreenRecorder:
     def __del__(self):
         if self.is_recording:
             self.stop_recording()
-
-
-class RecordingSession:
-    """Context manager za snimanje."""
-    
-    def __init__(self, video_name:  Optional[str] = None, output_dir: str = "videos"):
-        self.recorder = ScreenRecorder(output_dir=output_dir)
-        self.video_name = video_name
-        self. video_path = None
-    
-    def __enter__(self):
-        self.video_path = self.recorder.start_recording(self.video_name)
-        time.sleep(1)
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        time.sleep(1)
-        self.recorder. stop_recording()
-        return False

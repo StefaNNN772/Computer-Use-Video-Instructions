@@ -196,55 +196,55 @@ class OntologyExecutor:
         
         return results
     
-    def execute_from_json(self, json_path: str, video_name: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Convert JSON plan to OWL and execute from ontology.
+    # def execute_from_json(self, json_path: str, video_name: Optional[str] = None) -> Dict[str, Any]:
+    #     """
+    #     Convert JSON plan to OWL and execute from ontology.
         
-        Args:
-            json_path: Path to task_plan.json
-            video_name: Name for the output video
+    #     Args:
+    #         json_path: Path to task_plan.json
+    #         video_name: Name for the output video
             
-        Returns:
-            Execution results dictionary
-        """
-        print(f"\n[OntologyExecutor] Loading JSON plan: {json_path}")
+    #     Returns:
+    #         Execution results dictionary
+    #     """
+    #     print(f"\n[OntologyExecutor] Loading JSON plan: {json_path}")
         
-        if not os.path.exists(json_path):
-            return {"success": False, "error": f"File not found: {json_path}"}
+    #     if not os.path.exists(json_path):
+    #         return {"success": False, "error": f"File not found: {json_path}"}
         
-        # Load JSON plan
-        with open(json_path, "r", encoding="utf-8") as f:
-            plan_dict = json.load(f)
+    #     # Load JSON plan
+    #     with open(json_path, "r", encoding="utf-8") as f:
+    #         plan_dict = json.load(f)
         
-        # Validate plan
-        print("[OntologyExecutor] Validating plan...")
-        validation = self.validator.get_validation_report(plan_dict)
+    #     # Validate plan
+    #     print("[OntologyExecutor] Validating plan...")
+    #     validation = self.validator.get_validation_report(plan_dict)
         
-        if not validation["is_valid"]:
-            print("[OntologyExecutor] Plan validation failed:")
-            for error in validation["errors"]:
-                print(f"  - {error}")
-            return {"success": False, "error": "Plan validation failed", "validation": validation}
+    #     if not validation["is_valid"]:
+    #         print("[OntologyExecutor] Plan validation failed:")
+    #         for error in validation["errors"]:
+    #             print(f"  - {error}")
+    #         return {"success": False, "error": "Plan validation failed", "validation": validation}
         
-        if validation["warnings"]:
-            print("[OntologyExecutor] Warnings:")
-            for warning in validation["warnings"]:
-                print(f"  - {warning}")
+    #     if validation["warnings"]:
+    #         print("[OntologyExecutor] Warnings:")
+    #         for warning in validation["warnings"]:
+    #             print(f"  - {warning}")
         
-        # Map to ontology
-        print("[OntologyExecutor] Mapping plan to ontology...")
-        task_uri = self.mapper.map_plan_to_ontology(plan_dict)
+    #     # Map to ontology
+    #     print("[OntologyExecutor] Mapping plan to ontology...")
+    #     task_uri = self.mapper.map_plan_to_ontology(plan_dict)
         
-        # Save OWL file
-        owl_dir = os.path.dirname(json_path)
-        job_id = os.path.basename(json_path).replace("task_plan_", "").replace(".json", "")
-        owl_path = os.path.join(owl_dir, f"task_ontology_{job_id}.owl")
+    #     # Save OWL file
+    #     owl_dir = os.path.dirname(json_path)
+    #     job_id = os.path.basename(json_path).replace("task_plan_", "").replace(".json", "")
+    #     owl_path = os.path.join(owl_dir, f"task_ontology_{job_id}.owl")
         
-        self.ontology.save_ontology(owl_path, format="xml")
-        print(f"[OntologyExecutor] Saved ontology: {owl_path}")
+    #     self.ontology.save_ontology(owl_path, format="xml")
+    #     print(f"[OntologyExecutor] Saved ontology: {owl_path}")
         
-        # Execute from OWL
-        return self.execute_from_owl(owl_path, video_name)
+    #     # Execute from OWL
+    #     return self.execute_from_owl(owl_path, video_name)
     
     def _find_task(self, graph: Graph) -> Optional[URIRef]:
         """Find the Task individual in the graph"""

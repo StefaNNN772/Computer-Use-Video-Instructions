@@ -40,10 +40,6 @@ class PlanMapper:
         
         return task_uri
     
-    def save_ontology(self, path: str, format: str = "xml"):
-        """Save ontology to file."""
-        self.ontology.save_ontology(path, format=format)
-    
     def _validate_plan_structure(self, plan: Dict[str, Any]):
         """Validate that plan has required keys."""
         required_keys = ["goal", "steps"]
@@ -105,11 +101,3 @@ class PlanMapper:
             "description": step.get("description", ""),
             "expected_result": step.get("expected_result", "")
         }
-    
-    def get_steps_from_ontology(self, task_uri: URIRef) -> list:
-        """Get steps from ontology for execution."""
-        return self.ontology.get_task_steps(task_uri)
-    
-    def update_step_state(self, step_uri: str, state: str):
-        """Update step state in ontology."""
-        self.ontology.update_step_state(URIRef(step_uri), state)

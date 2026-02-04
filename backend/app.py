@@ -2,7 +2,6 @@ import os
 import json
 import uuid
 import threading
-import time
 import re
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory
@@ -14,8 +13,8 @@ load_dotenv()
 
 from src.input_processor import InputProcessor
 from src.task_decomposer import TaskDecomposer
-from src. execution import Executor
-from src.screen_recorder import ScreenRecorder
+# from src.execution import Executor
+# from src.screen_recorder import ScreenRecorder
 
 app = Flask(__name__)
 CORS(app)
@@ -121,66 +120,6 @@ def generate_plan_task(job_id: str, instruction:  str):
         import traceback
         traceback.print_exc()
 
-
-# def execute_plan_task(job_id: str):
-#     """Izvrsavanje plana, tj. snimanje"""
-#     try:
-#         jobs[job_id]["status"] = JobStatus.RECORDING
-#         jobs[job_id]["message"] = "Starting recording and execution"
-        
-#         plan_dict = load_task_plan(job_id)
-#         if not plan_dict:
-#             jobs[job_id]["status"] = JobStatus.FAILED
-#             jobs[job_id]["error"] = "Plan not found"
-#             return
-        
-#         # Privremeno cuvanje plana
-#         plan_path = os. path.join(TEMP_DIR, f"task_plan_{job_id}.json")
-        
-#         # Executor za snimanje
-#         executor = Executor(slow_mode=True, verify_steps=False, record_video=True)
-        
-#         # Postavljanje imena videa
-#         video_name = f"tutorial_{job_id}"
-        
-#         # Izvrsavanje
-#         jobs[job_id]["status"] = JobStatus.EXECUTING
-#         jobs[job_id]["message"] = "Executing steps"
-        
-#         results = executor.execute_from_json(plan_path, video_name=video_name)
-        
-#         video_path = results.get("video_path")
-        
-#         if video_path and os.path.exists(video_path):
-#             # Premjestanje videa u videos folder ukoliko nije tamo
-#             video_filename = os.path.basename(video_path)
-#             final_video_path = os.path.join(VIDEOS_DIR, video_filename)
-            
-#             if video_path != final_video_path:
-#                 import shutil
-#                 shutil.move(video_path, final_video_path)
-#                 video_path = final_video_path
-            
-#             jobs[job_id]["status"] = JobStatus.COMPLETED
-#             jobs[job_id]["message"] = "Video successfully created!"
-#             jobs[job_id]["video_filename"] = os.path.basename(video_path)
-#             jobs[job_id]["video_url"] = f"/api/videos/{os.path.basename(video_path)}"
-#             jobs[job_id]["results"] = {
-#                 "successful_steps": results.get("successful_steps", 0),
-#                 "failed_steps": results.get("failed_steps", 0),
-#                 "total_steps": results.get("total_steps", 0)
-#             }
-#         else:
-#             jobs[job_id]["status"] = JobStatus. FAILED
-#             jobs[job_id]["error"] = "Video not created"
-            
-#     except Exception as e:
-#         jobs[job_id]["status"] = JobStatus.FAILED
-#         jobs[job_id]["error"] = str(e)
-#         print(f"[ERROR] execute_plan_task: {e}")
-#         import traceback
-#         traceback.print_exc()
-
 def execute_plan_task(job_id: str):
     """Background task - execute plan from ontology and record video."""
     try:
@@ -249,7 +188,6 @@ def execute_plan_task(job_id: str):
         import traceback
         traceback.print_exc()
 
-
 # -------------------- API Endpoints --------------------
 
 @app.route("/api/health", methods=["GET"])
@@ -259,165 +197,6 @@ def health_check():
         "status": "ok",
         "timestamp": datetime. now().isoformat()
     })
-
-@app.route("/api/execute-owl/<job_id>", methods=["POST"])
-def execute_from_owl_endpoint(job_id: str):
-    """Execute directly from OWL file."""
-    owl_path = os.path.join(ONTOLOGY_DIR, f"task_ontology_{job_id}.owl")
-    
-    if not os.path.exists(owl_path):
-        # Try .ttl
-        owl_path = os.path.join(ONTOLOGY_DIR, f"task_ontology_{job_id}.ttl")
-    
-    if not os.path.exists(owl_path):
-        return jsonify({"error": "OWL file not found"}), 404
-    
-    # Start background execution
-    thread = threading.Thread(
-        target=execute_from_owl_task,
-        args=(job_id, owl_path)
-    )
-    thread.start()
-    
-    return jsonify({
-        "job_id": job_id,
-        "status": JobStatus.RECORDING,
-        "message": "Execution from OWL started",
-        "owl_path": owl_path
-    })
-
-
-def execute_from_owl_task(job_id: str, owl_path: str):
-    """Background task - execute from OWL file."""
-    try:
-        jobs[job_id] = jobs.get(job_id, {
-            "id": job_id,
-            "status": JobStatus.RECORDING,
-            "message": "Executing from OWL..."
-        })
-        
-        jobs[job_id]["status"] = JobStatus.RECORDING
-        jobs[job_id]["message"] = "Executing steps from OWL ontology..."
-        
-        # Create executor and run
-        executor = OntologyExecutor(slow_mode=True, record_video=True)
-        video_name = f"tutorial_{job_id}"
-        
-        results = executor.execute_from_owl(owl_path, video_name=video_name)
-        
-        # Handle results
-        video_path = results.get("video_path")
-        
-        if video_path and os.path.exists(video_path):
-            video_filename = os.path.basename(video_path)
-            final_video_path = os.path.join(VIDEOS_DIR, video_filename)
-            
-            if video_path != final_video_path:
-                import shutil
-                shutil.move(video_path, final_video_path)
-                video_path = final_video_path
-            
-            jobs[job_id]["status"] = JobStatus.COMPLETED
-            jobs[job_id]["message"] = "Video created from OWL!"
-            jobs[job_id]["video_filename"] = os.path.basename(video_path)
-            jobs[job_id]["video_url"] = f"/api/videos/{os.path.basename(video_path)}"
-            jobs[job_id]["results"] = {
-                "successful_steps": results.get("successful_steps", 0),
-                "failed_steps": results.get("failed_steps", 0),
-                "total_steps": results.get("total_steps", 0)
-            }
-        else:
-            jobs[job_id]["status"] = JobStatus.FAILED
-            jobs[job_id]["error"] = results.get("error", "Execution failed")
-            
-    except Exception as e:
-        jobs[job_id]["status"] = JobStatus.FAILED
-        jobs[job_id]["error"] = str(e)
-        print(f"[ERROR] execute_from_owl_task: {e}")
-        import traceback
-        traceback.print_exc()
-
-@app.route("/api/owl/<job_id>", methods=["GET"])
-def get_owl_content(job_id: str):
-    """Get OWL file content and parsed steps."""
-    owl_path = os.path.join(ONTOLOGY_DIR, f"task_ontology_{job_id}.owl")
-    
-    if not os.path.exists(owl_path):
-        owl_path = os.path.join(ONTOLOGY_DIR, f"task_ontology_{job_id}.ttl")
-    
-    if not os.path.exists(owl_path):
-        return jsonify({"error": "OWL file not found"}), 404
-    
-    try:
-        from rdflib import Graph
-        
-        graph = Graph()
-        file_format = "xml" if owl_path.endswith(".owl") else "turtle"
-        graph.parse(owl_path, format=file_format)
-        
-        # Get steps via SPARQL
-        query = """
-        PREFIX cu: <http://example.org/computer-use#>
-        
-        SELECT ?step ?order ?action ?target ?description ?state
-        WHERE {
-            ?task a cu:Task .
-            ?task cu:hasStep ?step .
-            ?step cu:stepOrder ?order .
-            ?step cu:hasAction ?action .
-            OPTIONAL { ?step cu:targetName ?target }
-            OPTIONAL { ?step cu:stepDescription ?description }
-            OPTIONAL { ?step cu:hasState ?state }
-        }
-        ORDER BY ?order
-        """
-        
-        results = graph.query(query)
-        steps = []
-        
-        for row in results:
-            steps.append({
-                "step_uri": str(row.step),
-                "order": int(row.order),
-                "action": str(row.action).split("#")[-1],
-                "target": str(row.target) if row.target else "",
-                "description": str(row.description) if row.description else "",
-                "state": str(row.state).split("#")[-1] if row.state else "PendingState"
-            })
-        
-        return jsonify({
-            "owl_path": owl_path,
-            "triple_count": len(graph),
-            "steps": steps,
-            "format": file_format
-        })
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/api/validate-plan/<job_id>", methods=["GET"])
-def validate_plan(job_id: str):
-    """Validiraj plan prema ontologiji"""
-    if job_id not in jobs:
-        return jsonify({"error": "Job not found"}), 404
-    
-    plan = load_task_plan(job_id)
-    if not plan:
-        return jsonify({"error": "Plan not found"}), 404
-    
-    validator = PlanValidator()
-    report = validator.get_validation_report(plan)
-    
-    return jsonify(report)
-
-
-@app.route("/api/ontology/actions", methods=["GET"])
-def get_ontology_actions():
-    """Dobij validne akcije iz ontologije"""
-    ontology = OntologyManager()
-    actions = ontology.get_valid_actions()
-    
-    return jsonify({"actions": actions})
 
 @app.route("/api/generate-plan", methods=["POST"])
 def generate_plan():
@@ -617,15 +396,6 @@ def download_video(filename: str):
         as_attachment=True,
         download_name=filename
     )
-
-
-@app.route("/api/jobs", methods=["GET"])
-def list_jobs():
-    """Lista svih job-ova"""
-    return jsonify({
-        "jobs": list(jobs.values())
-    })
-
 
 @app.route("/api/tutorials", methods=["GET"])
 def get_all_tutorials():

@@ -306,29 +306,3 @@ class OntologyManager:
         self.graph.serialize(destination=path, format=format)
         print(f"[OntologyManager] Ontology saved: {path}")
         print(f"[OntologyManager] Format: {format}, Triples: {len(self.graph)}")
-    
-    def export_to_owl(self, path: str = None):
-        """Eksportuj ontologiju u OWL/XML format"""
-        if path is None:
-            path = os.path.join(
-                os.path.dirname(__file__), "..", "..", "ontology", "computer_use.owl"
-            )
-        self.save_ontology(path, format="xml")
-    
-    def query(self, sparql_query: str) -> List[Dict]:
-        """Izvrsi SPARQL upit"""
-        try:
-            results = self.graph.query(sparql_query)
-            return [dict(row) for row in results]
-        except Exception as e:
-            print(f"[OntologyManager] SPARQL error: {e}")
-            return []
-    
-    def get_statistics(self) -> Dict[str, int]:
-        """Dobijanje statistike ontologije"""
-        return {
-            "total_triples": len(self.graph),
-            "tasks": len(list(self.graph.subjects(RDF.type, self.CU.Task))),
-            "steps": len(list(self.graph.subjects(RDF.type, self.CU.Step))),
-            "actions": len(list(self.graph.subjects(RDF.type, self.CU.Action)))
-        }

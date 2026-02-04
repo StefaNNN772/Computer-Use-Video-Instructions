@@ -1,44 +1,51 @@
+import os
+import uuid
 from typing import Dict, Any, Optional
 from rdflib import URIRef
-import uuid
 from .ontology_manager import OntologyManager
 
 
 class PlanMapper:
-    """Mapira task_plan.json na ontologiju"""
+    """Maps task_plan.json to OWL ontology"""
     
     def __init__(self, ontology_manager: OntologyManager = None):
         self.ontology = ontology_manager or OntologyManager()
     
-    def map_plan_to_ontology(self, plan_dict: Dict[str, Any]) -> URIRef:
+    def map_plan_to_ontology(self, plan_dict: Dict[str, Any], 
+                             task_id: str = None) -> URIRef:
         """
-        Mapiraj JSON plan na ontologiju.
+        Map JSON plan to ontology.
         
         Args:
-            plan_dict: task_plan.json kao dict
+            plan_dict: task_plan.json as dict
+            task_id: Optional task ID (generated if not provided)
             
         Returns:
-            URI kreiranog Task-a
+            URI of created Task
         """
-        # Generisi ID
-        task_id = str(uuid.uuid4())[:8]
+        if task_id is None:
+            task_id = str(uuid.uuid4())[:8]
         
-        # Validacija strukture
+        # Validate structure
         self._validate_plan_structure(plan_dict)
         
-        # Normalizacija podataka
+        # Normalize data
         normalized_plan = self._normalize_plan(plan_dict)
         
-        # Dodaj u ontologiju
+        # Add to ontology
         task_uri = self.ontology.add_task_to_graph(task_id, normalized_plan)
         
-        print(f"[PlanMapper] Mapped plan: {task_uri}")
-        print(f"[PlanMapper] Step number: {len(normalized_plan.get('steps', []))}")
+        print(f"[PlanMapper] Mapped plan to ontology: {task_uri}")
+        print(f"[PlanMapper] Steps: {len(normalized_plan.get('steps', []))}")
         
         return task_uri
     
+    def save_ontology(self, path: str, format: str = "xml"):
+        """Save ontology to file."""
+        self.ontology.save_ontology(path, format=format)
+    
     def _validate_plan_structure(self, plan: Dict[str, Any]):
-        """Validacija da li plan ima potrebne kljuceve"""
+        """Validate that plan has required keys."""
         required_keys = ["goal", "steps"]
         
         for key in required_keys:
@@ -52,7 +59,7 @@ class PlanMapper:
             raise ValueError("Plan must have at least one step")
     
     def _normalize_plan(self, plan: Dict[str, Any]) -> Dict[str, Any]:
-        """Normalizacija plana, tj standardizacija vrijednosti"""
+        """Normalize plan values."""
         normalized = {
             "original_instruction": plan.get("original_instruction", ""),
             "goal": plan.get("goal", ""),
@@ -68,8 +75,9 @@ class PlanMapper:
         return normalized
     
     def _normalize_step(self, step: Dict[str, Any], default_id: int) -> Dict[str, Any]:
-        """Normalizacija pojedinacnog koraka"""
-        # Validne akcije
+        """Normalize a single step."""
+        import re
+        
         valid_actions = [
             "click", "double_click", "right_click", "type_text",
             "key_press", "key_combination", "wait", "open_application",
@@ -78,19 +86,16 @@ class PlanMapper:
         
         action = step.get("action", "click").lower()
         if action not in valid_actions:
-            print(f"[PlanMapper] WARNING: Unknown action '{action}', using 'click'")
+            print(f"[PlanMapper] Warning: Unknown action '{action}', using 'click'")
             action = "click"
         
-        # Normalizacija value
         value = step.get("value")
         if value is not None:
             value = str(value)
             
-            # Izvuci broj za wait akciju
             if action == "wait":
-                import re
                 numbers = re.findall(r'\d+', value)
-                value = numbers[0] if numbers else "4"
+                value = numbers[0] if numbers else "3"
         
         return {
             "id": step.get("id", default_id),
@@ -102,9 +107,9 @@ class PlanMapper:
         }
     
     def get_steps_from_ontology(self, task_uri: URIRef) -> list:
-        """Dobavljanje koraka za izvrsavanje iz ontologije"""
+        """Get steps from ontology for execution."""
         return self.ontology.get_task_steps(task_uri)
     
     def update_step_state(self, step_uri: str, state: str):
-        """Azuriranje stanja koraka u ontologiji"""
+        """Update step state in ontology."""
         self.ontology.update_step_state(URIRef(step_uri), state)

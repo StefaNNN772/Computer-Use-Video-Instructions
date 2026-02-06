@@ -212,8 +212,8 @@ After execution, step states are updated in the ontology and saved to a new file
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/StefaNNN772/Compute-use-video-instructions.git
-cd Compute-use-video-instructions
+git clone https://github.com/StefaNNN772/Computer-Use-Video-Instructions.git
+cd Computer-Use-Video-Instructions
 ```
 
 ### 2. Backend Setup
@@ -381,7 +381,7 @@ curl -X POST http://localhost:5000/api/generate-plan \
 ## Project Structure
 
 ```
-Compute-use-video-instructions/
+Computer-Use-Video-Instructions/
 |-- backend/
 |   |-- app.py                          # Flask application entry point
 |   |-- requirements.txt                # Python dependencies

@@ -221,6 +221,11 @@ SCREEN_RECORDER_DIRECT_PATH1=C:\ffmpeg\bin\ffmpeg.exe
 SCREEN_RECORDER_DIRECT_PATH2=%USERPROFILE%\ffmpeg\bin\ffmpeg.exe
 ```
 
+Create a `.env` file in the `frontend` directory with the following content:
+```env
+REACT_APP_SERVER_API_URL=http://localhost:5000
+```
+
 ## Running the Application
 
 ### 1. Start the Backend Server
